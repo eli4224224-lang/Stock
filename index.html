@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>AI Agent</title>
+  <!-- iPhone PWA Meta -->
+  <meta name="theme-color" content="#000000" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AI Agent" />
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #app {
+      width: 100%;
+      max-width: 500px;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <!-- Jotform AI Agent -->
+  <script src="https://cdn.jotfor.ms/agent/embedjs/019f247c9fd870008b7109914c371221cc1d/embed.js"></script>
+</div>
+<script>
+  // Inline Manifest
+  const manifest = {
+    name: "AI Agent",
+    short_name: "Agent",
+    start_url: ".",
+    display: "standalone",
+    background_color: "#000000",
+    theme_color: "#000000",
+    orientation: "portrait",
+    icons: [
+      {
+        src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAQAAABlJr6QAAAAAklEQVR4AewaftIAAABCSURBVO3BQY4AAAwDoJvc/6d3hB0kJk3Z2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2Q0YzQABqMZ7LwAAAABJRU5ErkJggg==",
+        sizes: "192x192",
+        type: "image/png"
+      }
+    ]
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const manifestURL = URL.createObjectURL(manifestBlob);
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = manifestURL;
+  document.head.appendChild(link);
+  // Inline Service Worker
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+      const CACHE = "agent-cache-v1";
+      self.addEventListener("install", e => {
+        e.waitUntil(
+          caches.open(CACHE).then(cache => cache.addAll(["./"]))
+        );
+      });
+      self.addEventListener("fetch", e => {
+        e.respondWith(
+          caches.match(e.request).then(res => res || fetch(e.request))
+        );
+      });
+    `;
+    const blob = new Blob([swCode], { type: 'text/javascript' });
+    const swURL = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swURL);
+  }
+</script>
+</body>
+</html>
